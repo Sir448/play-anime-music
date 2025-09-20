@@ -39,7 +39,7 @@ def get_audio_url_ytapi(name):
     ydl_opts = {"format": "bestaudio/best", "quiet": True, "nocheckcertificate": True}
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=False)
-        return info["url"], info["title"]
+        return info["url"], info["title"], url
 
 
 def get_audio_url_ytdlp(name):
@@ -48,7 +48,8 @@ def get_audio_url_ytdlp(name):
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         entries = ydl.extract_info(query, download=False)
         entry = entries["entries"][0]
-        return entry["url"], entry["title"]
+        url = f"https://www.youtube.com/watch?v={entry['id']}"
+        return entry["url"], entry["title"], url
 
 
 def get_audio_url(name):
@@ -65,11 +66,13 @@ def format_duration(ms: int) -> str:
 
 
 def play_video(name, player):
-    audio_url, title = get_audio_url(name)
+    audio_url, title, video_url = get_audio_url(name)
     print("Retrieved Audio Url")
     media = vlc.Media(audio_url)
     player.set_media(media)
     player.play()
     while player.get_length() <= 0:
         sleep(0.1)
+    player.set_time(0)
     print(f"Playing {title} {format_duration(player.get_length())}")
+    print(f"YT: {video_url}")

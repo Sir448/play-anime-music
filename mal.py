@@ -148,4 +148,4 @@ def gen_song(access_token: str, anime_id: int, include_ops=True, include_eds=Tru
             f"https://myanimelist.net/anime/{anime_id}/",
         )
     else:
-        raise NoSongsFound(f"{data['title']} has no OPs or EDs.")
+        raise NoSongsFound(f"{data['title']} has no OPs or EDs.\nhttps://myanimelist.net/anime/{anime_id}/")
