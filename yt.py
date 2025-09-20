@@ -11,7 +11,7 @@ if get_config('use-yt-dlp'):
     import googleapiclient.discovery
 
     load_dotenv()
-    
+
     api_service_name = "youtube"
     api_version = "v3"
     YT_API_KEY=os.getenv("YT_API_KEY")
@@ -23,7 +23,7 @@ def get_video_id(search):
     request = youtube.search().list(
             part="id",
             maxResults=1,
-            q=search + " audio",
+            q=search + " lyrics",
             type="video",
             videoCategoryId="10"
         )
@@ -45,7 +45,7 @@ def get_audio_url_ytapi(name):
         return info['url'], info['title']
     
 def get_audio_url_ytdlp(name):
-    query = f"ytsearch1:{name} audio"
+    query = f"ytsearch1:{name} lyrics"
     ydl_opts = {
         'format': 'bestaudio/best',
         'quiet': True,
