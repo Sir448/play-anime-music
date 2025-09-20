@@ -1,26 +1,33 @@
-import json
 import time
 import threading
 
 from random import choice
 
 import vlc
+from config import get_config, set_config, save_config, update_config
+from args import parse_args
+
+
+player = vlc.MediaPlayer()
+player.audio_set_volume(get_config('volume', 20))
+
+args = parse_args()
+kwargs = {k: v for k, v in vars(args).items() if v is not None}
+if kwargs:
+    update_config(**kwargs)
+
+INCLUDE_OPS = get_config('include_ops')
+INCLUDE_EDS = get_config('include_eds')
+
 
 from mal import refresh_token, gen_song, get_animes
 from yt import get_video_id, play_video
 
 
-INCLUDE_OPS = True
-INCLUDE_EDS = True
-
-
-player = vlc.MediaPlayer()
-player.audio_set_volume(20)
-
 def player_thread():
     while True:    
         try:
-            name, anime, url = gen_song(access_token, choice(anime_ids))
+            name, anime, url = gen_song(access_token, choice(anime_ids), INCLUDE_OPS, INCLUDE_EDS)
             print(f"\n\nPlaying: {name}\n{anime}\nMAL: {url}")
             video_id = get_video_id(name)
             print(f"Video Id: {video_id}")
@@ -53,7 +60,9 @@ def command_loop():
         elif cmd.startswith('v'):
             try:
                 vol = int(cmd.split()[1])
-                player.audio_set_volume(max(0, min(100, vol)))
+                vol = max(0, min(100, vol))
+                player.audio_set_volume(vol)
+                set_config('volume', vol)
                 print(f"Volume set to {vol}%")
             except:
                 print("Usage: volume <0-100>")
@@ -75,11 +84,6 @@ Available commands:
             print("Unknown command. Type Help to get list of commands")
 
 if __name__ == '__main__':
-    # with open("token.json", 'r') as f:
-    #     token = json.load(f)
-        
-    # access_token = token['access_token']
-    # if token["expires_in"] < time.time():
     access_token = refresh_token()
 
     anime_ids = get_animes(access_token)
@@ -88,4 +92,4 @@ if __name__ == '__main__':
     thread.start()
         
     command_loop()
-    
+    save_config()

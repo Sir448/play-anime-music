@@ -7,34 +7,12 @@ import os
 from dotenv import load_dotenv
 from random import randint
 from auth import get_new_token
+from config import get_config
 
 load_dotenv()
 
 MAL_CLIENT_ID = os.getenv("MAL_CLIENT_ID")
 MAL_CLIENT_SECRET = os.getenv("MAL_CLIENT_SECRET")
-
-# def refresh_token():
-
-#     with open('token.json', 'r') as file: 
-#         token = json.load(file)['refresh_token']
-#     url = 'https://myanimelist.net/v1/oauth2/token'
-#     data = {
-#         'client_id': MAL_CLIENT_ID,
-#         'client_secret': MAL_CLIENT_SECRET,
-#         'grant_type': 'refresh_token',
-#         'refresh_token': token
-#     }
-#     response = requests.post(url, data)
-#     token = response.json()
-#     print(token)
-#     token['expires_in'] += math.floor(time.time())
-    
-#     with open('token.json', 'w') as file:
-#         json.dump(token, file, indent = 4)
-
-#     print("Token Refreshed")
-#     print(token['access_token'])
-#     return token['access_token']
 
 def refresh_token():
     """
@@ -110,7 +88,8 @@ def process_name_for_youtube(raw_name: str, anime_title: str = None):
 # get list of anime ids for both completed and watching
 def get_animes(access_token: str):
     completed, watching = get_stats(access_token)
-    url = "https://api.myanimelist.net/v2/users/@me/animelist?sort=anime_start_date&status=completed&limit="+str(completed)
+    user = get_config('user', '@me')
+    url = f"https://api.myanimelist.net/v2/users/{user}/animelist?sort=anime_start_date&status=completed&limit={completed}"
 
     response = requests.get(url, headers = {
         'Authorization': f'Bearer {access_token}'
@@ -119,7 +98,7 @@ def get_animes(access_token: str):
     
     completedIds = [x['node']['id'] for x in data['data']]
     
-    url = "https://api.myanimelist.net/v2/users/@me/animelist?sort=anime_start_date&status=watching&limit="+str(watching)
+    url = f"https://api.myanimelist.net/v2/users/{user}/animelist?sort=anime_start_date&status=completed&limit={watching}"
 
     response = requests.get(url, headers = {
         'Authorization': f'Bearer {access_token}'
@@ -132,12 +111,14 @@ def get_animes(access_token: str):
 
 # get number of animes completed and currently watching
 def get_stats(access_token: str):
-    url = "https://api.myanimelist.net/v2/users/@me?fields=anime_statistics"
+    user = get_config('user', '@me')
+    url = f"https://api.myanimelist.net/v2/users/{user}?fields=anime_statistics"
 
     response = requests.get(url, headers = {
         'Authorization': f'Bearer {access_token}'
         })
     data = response.json()
+    print(f"Playing from {data['name']}'s list")
     return data["anime_statistics"]["num_items_completed"], data["anime_statistics"]["num_items_watching"]
 
 class NoSongsFound(Exception):
