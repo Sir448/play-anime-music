@@ -37,6 +37,10 @@ This Python script plays songs from your MyAnimeList (MAL) anime list. It automa
 
 ### TODO
 
+- Bias randomness (towards personal score or popularity or recency)
+    - Parameters for tuning
+    - Invert
+- Search checks multiple videos and looks for best one
 - Seeking
 - Skip around song
 - UI

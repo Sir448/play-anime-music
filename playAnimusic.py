@@ -55,7 +55,7 @@ def command_loop():
         elif cmd == "p" or cmd == "pause":
             player.pause()
             print("Paused")
-        elif cmd == "skip":
+        elif cmd == "skip" or cmd == "s":
             player.stop()
             print("Skipped")
         elif cmd.startswith("v"):

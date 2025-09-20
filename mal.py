@@ -98,7 +98,7 @@ def get_animes(access_token: str):
 
     completedIds = [x["node"]["id"] for x in data["data"]]
 
-    url = f"https://api.myanimelist.net/v2/users/@me/animelist?sort=anime_start_date&status=completed&limit={watching}"
+    url = f"https://api.myanimelist.net/v2/users/@me/animelist?sort=anime_start_date&status=watching&limit={watching}"
 
     response = requests.get(url, headers={"Authorization": f"Bearer {access_token}"})
     data = response.json()
