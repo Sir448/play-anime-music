@@ -3,6 +3,7 @@ import json, os
 _config = None
 _modified = False
 
+
 def _load_config():
     global _config, _modified
 
@@ -14,23 +15,26 @@ def _load_config():
             _config = json.load(f)
     else:
         _config = {
-            'volume': 20,
-            'include_ops': True,
-            'include_eds': True,
-            'use-yt-dlp': True
+            "volume": 20,
+            "include_ops": True,
+            "include_eds": True,
+            "use-yt-dlp": True,
         }
         _modified = True
     return _config
 
+
 def get_config(key, default=None):
     _load_config()
     return _config.get(key, default)
+
 
 def set_config(key, value):
     global _modified
     _load_config()
     _config[key] = value
     _modified = True
+
 
 def update_config(**kwargs):
     """Update only provided keys, leave others unchanged."""
@@ -39,7 +43,6 @@ def update_config(**kwargs):
     for key, value in kwargs.items():
         _config[key] = value
     _modified = True
-
 
 
 def save_config():

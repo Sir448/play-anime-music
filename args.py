@@ -1,5 +1,6 @@
 import argparse
 
+
 def str2bool(v):
     if isinstance(v, bool):
         return v
@@ -10,6 +11,7 @@ def str2bool(v):
         return False
     else:
         raise argparse.ArgumentTypeError(f"Boolean value expected, got {v}")
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
