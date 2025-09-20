@@ -125,11 +125,9 @@ def get_stats(access_token: str):
 
 class NoSongsFound(Exception):
     """Raised when an anime has no opening or ending themes."""
-
     pass
 
 
-# print random song from given anime
 def gen_song(access_token: str, anime_id: int, include_ops=True, include_eds=True):
     url = f"https://api.myanimelist.net/v2/anime/{anime_id}?fields=id,title,opening_themes,ending_themes"
     response = requests.get(url, headers={"Authorization": f"Bearer {access_token}"})

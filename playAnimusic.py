@@ -28,7 +28,10 @@ def player_thread():
             name, anime, url = gen_song(
                 access_token, choice(anime_ids), INCLUDE_OPS, INCLUDE_EDS
             )
-            print(f"\n\nPlaying: {name}\n{anime}\nMAL: {url}")
+            print("\n\n")
+            print(f"🎵 Song:      {name}")
+            print(f"📺 Anime:     {anime}")
+            print(f"🔗 MAL:       {url}")
             play_video(name, player)
             while player.get_state() != vlc.State.Playing:
                 sleep(0.1)
@@ -38,6 +41,7 @@ def player_thread():
         except Exception as e:
             print("Error Occurred, Skipping to next song")
             print(e)
+            print('\n\n')
 
 
 def command_loop():
