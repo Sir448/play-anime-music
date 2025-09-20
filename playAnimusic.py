@@ -41,7 +41,6 @@ def player_thread():
         except Exception as e:
             print("Error Occurred, Skipping to next song")
             print(e)
-            print('\n\n')
 
 
 def command_loop():

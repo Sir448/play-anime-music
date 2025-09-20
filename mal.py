@@ -91,15 +91,14 @@ def process_name_for_youtube(raw_name: str, anime_title: str = None):
 # get list of anime ids for both completed and watching
 def get_animes(access_token: str):
     completed, watching = get_stats(access_token)
-    user = get_config("user", "@me")
-    url = f"https://api.myanimelist.net/v2/users/{user}/animelist?sort=anime_start_date&status=completed&limit={completed}"
+    url = f"https://api.myanimelist.net/v2/users/@me/animelist?sort=anime_start_date&status=completed&limit={completed}"
 
     response = requests.get(url, headers={"Authorization": f"Bearer {access_token}"})
     data = response.json()
 
     completedIds = [x["node"]["id"] for x in data["data"]]
 
-    url = f"https://api.myanimelist.net/v2/users/{user}/animelist?sort=anime_start_date&status=completed&limit={watching}"
+    url = f"https://api.myanimelist.net/v2/users/@me/animelist?sort=anime_start_date&status=completed&limit={watching}"
 
     response = requests.get(url, headers={"Authorization": f"Bearer {access_token}"})
     data = response.json()
@@ -111,8 +110,7 @@ def get_animes(access_token: str):
 
 # get number of animes completed and currently watching
 def get_stats(access_token: str):
-    user = get_config("user", "@me")
-    url = f"https://api.myanimelist.net/v2/users/{user}?fields=anime_statistics"
+    url = f"https://api.myanimelist.net/v2/users/@me?fields=anime_statistics"
 
     response = requests.get(url, headers={"Authorization": f"Bearer {access_token}"})
     data = response.json()

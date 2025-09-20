@@ -5,7 +5,6 @@ This Python script plays songs from your MyAnimeList (MAL) anime list. It automa
 ### Features:
 
 - Optionally include openings (--include-ops) and/or endings (--include-eds).
-- Set your MAL username via command line (--user) or config file.
 - Plays songs, allowing pause, resume, and skip commands.
 - Command-line interface for easy control while music is playing.
 

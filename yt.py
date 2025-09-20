@@ -74,5 +74,5 @@ def play_video(name, player):
     while player.get_length() <= 0:
         sleep(0.1)
     player.set_time(0)
-    print(f"🕒 Duration: {format_duration(player.get_length())}")
+    print(f"🕒 Duration:  {format_duration(player.get_length())}")
     print(f"▶️  YouTube:   {video_url}")
