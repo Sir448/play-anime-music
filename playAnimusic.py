@@ -16,12 +16,12 @@ kwargs = {k: v for k, v in vars(args).items() if v is not None}
 if kwargs:
     update_config(**kwargs)
 
-INCLUDE_OPS = get_config('include_ops')
-INCLUDE_EDS = get_config('include_eds')
+INCLUDE_OPS = get_config('include_ops', True)
+INCLUDE_EDS = get_config('include_eds', True)
 
 
 from mal import refresh_token, gen_song, get_animes
-from yt import get_video_id, play_video
+from yt import play_video
 
 
 def player_thread():
@@ -29,9 +29,7 @@ def player_thread():
         try:
             name, anime, url = gen_song(access_token, choice(anime_ids), INCLUDE_OPS, INCLUDE_EDS)
             print(f"\n\nPlaying: {name}\n{anime}\nMAL: {url}")
-            video_id = get_video_id(name)
-            print(f"Video Id: {video_id}")
-            play_video(video_id, player)
+            play_video(name, player)
             while player.get_state() != vlc.State.Playing:
                 time.sleep(0.1)
 
@@ -39,6 +37,7 @@ def player_thread():
                 time.sleep(0.5)
         except Exception as e:
             print("Error Occurred, Skipping to next song")
+            print(e)
 
 
 

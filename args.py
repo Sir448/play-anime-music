@@ -15,5 +15,6 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--include-ops", type=str2bool, help="Include openings")
     parser.add_argument("--include-eds", type=str2bool, help="Include endings")
+    parser.add_argument("--use-yt-dlp", type=str2bool, help="Use yt-dlp search")
     parser.add_argument("--user", type=str, help="Set your MAL username")
     return parser.parse_args()

@@ -17,6 +17,7 @@ def _load_config():
             'volume': 20,
             'include_ops': True,
             'include_eds': True,
+            'use-yt-dlp': True
         }
         _modified = True
     return _config

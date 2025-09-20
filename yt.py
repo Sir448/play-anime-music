@@ -5,16 +5,18 @@ from time import sleep
 
 import os
 from dotenv import load_dotenv
-import googleapiclient.discovery
+from config import get_config
 
+if get_config('use-yt-dlp'):
+    import googleapiclient.discovery
 
-load_dotenv()
+    load_dotenv()
+    
+    api_service_name = "youtube"
+    api_version = "v3"
+    YT_API_KEY=os.getenv("YT_API_KEY")
 
-api_service_name = "youtube"
-api_version = "v3"
-YT_API_KEY=os.getenv("YT_API_KEY")
-
-youtube = googleapiclient.discovery.build(api_service_name, api_version, developerKey = YT_API_KEY)
+    youtube = googleapiclient.discovery.build(api_service_name, api_version, developerKey = YT_API_KEY)
 
 
 def get_video_id(search):
@@ -29,7 +31,9 @@ def get_video_id(search):
 
     return response["items"][0]["id"]["videoId"]
 
-def get_audio_url(video_id):
+def get_audio_url_ytapi(name):
+    video_id = get_video_id(name)
+    print(f"Video Id: {video_id}")
     url = f"https://www.youtube.com/watch?v={video_id}"
     ydl_opts = {
         'format': 'bestaudio/best',
@@ -39,6 +43,24 @@ def get_audio_url(video_id):
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=False)
         return info['url'], info['title']
+    
+def get_audio_url_ytdlp(name):
+    query = f"ytsearch1:{name} audio"
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'quiet': True,
+        'nocheckcertificate': True
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        entries = ydl.extract_info(query, download=False)
+        entry = entries['entries'][0]
+        return entry['url'], entry['title']
+    
+def get_audio_url(name):
+    if get_config('use-yt-dlp'):
+        return get_audio_url_ytdlp(name)
+    return get_audio_url_ytapi(name)
+    
 
 def format_duration(ms: int) -> str:
     total_seconds = ms // 1000
@@ -46,8 +68,8 @@ def format_duration(ms: int) -> str:
     seconds = total_seconds % 60
     return f"{minutes}:{seconds:02d}"
 
-def play_video(video_id, player):
-    audio_url, title = get_audio_url(video_id)
+def play_video(name, player):
+    audio_url, title = get_audio_url(name)
     print("Retrieved Audio Url")
     media = vlc.Media(audio_url)
     player.set_media(media)
