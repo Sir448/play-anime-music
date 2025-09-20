@@ -7,7 +7,7 @@ import os
 from dotenv import load_dotenv
 from config import get_config
 
-if get_config('use-yt-dlp'):
+if not get_config('use-yt-dlp'):
     import googleapiclient.discovery
 
     load_dotenv()
