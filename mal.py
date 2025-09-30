@@ -61,28 +61,27 @@ def refresh_token():
     return new_token["access_token"]
 
 
-def process_name_for_youtube(raw_name: str, anime_title: str = None):
-    """
-    Converts a MAL OP/ED name into a YouTube-friendly search query.
 
-    Args:
-        raw_name: The raw OP/ED string from MAL, e.g. '#4: "Honey Lemon (ハニーレモン)" by NACHERRY (eps 1)'.
-        anime_title: Optional anime title to include in search.
 
-    Returns:
-        A string suitable for YouTube search, aiming for full-length, clean audio.
-    """
-    # Remove leading number with optional '#' and colon
-    cleaned = re.sub(r"^#?\d+:\s*", "", raw_name.strip())
+def process_name_for_youtube(raw_name: str) -> str:
+    # # Remove leading number with optional '#' and colon
+    # cleaned = re.sub(r"^#?\d+:\s*", "", raw_name.strip())
 
-    # Remove parentheses or brackets and any space directly before them
-    cleaned = re.sub(r"\s*(\(|\[).*?(\)|\])", "", cleaned).strip()
+    # Keep only from the first quote onward
+    if '"' in raw_name:
+        cleaned = raw_name[raw_name.index('"'):]
+    else:
+        cleaned = raw_name.strip()
+
+    # Iteratively remove () and [] groups (non-nested only each pass)
+    pattern = re.compile(r"\s*(\([^()]*\)|\[[^\[\]]*\])")
+    while pattern.search(cleaned):
+        cleaned = pattern.sub("", cleaned).strip()
 
     # Replace multiple spaces with a single space
     cleaned = re.sub(r"\s+", " ", cleaned)
 
     return cleaned
-
 
 # https://api.myanimelist.net/v2/users/@me/animelist?fields=anime_title&status=watching
 # https://api.myanimelist.net/v2/users/@me/animelist?fields=anime_title&status=completed
@@ -138,10 +137,18 @@ def gen_song(access_token: str, anime_id: int, include_ops=True, include_eds=Tru
         combined = opening_themes + ending_themes
         idx = randint(0, len(combined) - 1)
         theme = combined[idx]["text"]
+
+        # Determine if it's an OP or ED
+        if idx < len(opening_themes):
+            label = f"OP #{idx + 1}"
+        else:
+            label = f"ED #{idx - len(opening_themes) + 1}"
+
         return (
             process_name_for_youtube(theme),
-            data.get("title", "Unknown"),
+            f"{data.get('title', 'Unknown')} ({label})",
             f"https://myanimelist.net/anime/{anime_id}/",
         )
     else:
         raise NoSongsFound(f"{data['title']} has no OPs or EDs.\nhttps://myanimelist.net/anime/{anime_id}/")
+

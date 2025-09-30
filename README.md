@@ -16,21 +16,25 @@ This Python script plays songs from your MyAnimeList (MAL) anime list. It automa
     ```
 2. Install [VLC](https://www.videolan.org/vlc/)
 
-3. Create a client in the [MAL API](https://myanimelist.net/apiconfig)
+3. Install [Deno](https://deno.com/)
+    > This has to do with some Youtube making it harder to download their videos
+    > Other JavaScript runtimes might work but yt-dlp recommends this one
 
-4. Add your **Client ID** and **Client Secret** to a `.env` file:
+4. Create a client in the [MAL API](https://myanimelist.net/apiconfig)
+
+5. Add your **Client ID** and **Client Secret** to a `.env` file:
     ```text
     MAL_CLIENT_ID=your_client_id
     MAL_CLIENT_SECRET=your_client_secret
     ```
 
-5. (Optional) Get a [YouTube API key](https://developers.google.com/youtube/v3/getting-started) and add it to `.env`:
+6. (Optional) Get a [YouTube API key](https://developers.google.com/youtube/v3/getting-started) and add it to `.env`:
     ```text
     YT_API_KEY=your_api_key
     ```
     > Only needed if you want to search with YouTube API instead of YT-DLP.
 
-6. Run the script:
+7. Run the script:
     ```bash
     python playAnimusic.py
     ```
@@ -40,7 +44,7 @@ This Python script plays songs from your MyAnimeList (MAL) anime list. It automa
 - Bias randomness (towards personal score or popularity or recency)
     - Parameters for tuning
     - Invert
-- Search checks multiple videos and looks for best one
+- Search checks multiple videos and looks for best one rather than just the first one
 - Seeking
 - Skip around song
 - UI

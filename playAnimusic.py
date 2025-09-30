@@ -7,7 +7,8 @@ from args import parse_args
 
 
 player = vlc.MediaPlayer()
-player.audio_set_volume(get_config("volume", 20))
+volume = get_config("volume", 20)
+player.audio_set_volume(volume)
 
 args = parse_args()
 kwargs = {k: v for k, v in vars(args).items() if v is not None}
@@ -23,6 +24,7 @@ from yt import play_video
 
 
 def player_thread():
+    print(f"Playing music at {volume}% volume")
     while True:
         try:
             name, anime, url = gen_song(
@@ -36,7 +38,7 @@ def player_thread():
             while player.get_state() != vlc.State.Playing:
                 sleep(0.1)
 
-            while player.is_playing():
+            while player.get_state() in {vlc.State.Playing, vlc.State.Paused}:
                 sleep(0.5)
         except Exception as e:
             print("Error Occurred, Skipping to next song")
@@ -45,7 +47,7 @@ def player_thread():
 
 def command_loop():
     while True:
-        while not player.is_playing():
+        while player.get_state() not in {vlc.State.Playing, vlc.State.Paused}:
             sleep(0.5)
         cmd = input("Enter Command:").strip().lower()
         state = player.get_state()
