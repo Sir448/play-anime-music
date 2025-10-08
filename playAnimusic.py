@@ -60,6 +60,9 @@ def command_loop():
         elif cmd == "skip" or cmd == "s":
             player.stop()
             print("Skipped")
+        elif cmd == "restart" or cmd == "r":
+            player.set_time(0)
+            print("Restarted Song")
         elif cmd.startswith("v"):
             try:
                 vol = int(cmd.split()[1])
@@ -80,6 +83,7 @@ Available commands:
   play             - Resume playback if paused
   pause            - Pause the current song
   skip             - Skip to the next song in the playlist
+  restart            - Return to the beginning of the song
   volume <0-100>   - Set playback volume (0 = mute, 100 = max)
   help             - Show this help message
   quit             - Stop playback and exit the player

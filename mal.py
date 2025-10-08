@@ -14,6 +14,21 @@ load_dotenv()
 MAL_CLIENT_ID = os.getenv("MAL_CLIENT_ID")
 MAL_CLIENT_SECRET = os.getenv("MAL_CLIENT_SECRET")
 
+CACHE_FILE = "mal_cache.json"
+
+# Load cache at module import
+if os.path.exists(CACHE_FILE):
+    with open(CACHE_FILE, "r", encoding="utf-8") as f:
+        cache = json.load(f)
+else:
+    cache = {}
+
+def save_cache():
+    with open(CACHE_FILE, "w", encoding="utf-8") as f:
+        json.dump(cache, f, indent=4)
+        
+
+
 
 def refresh_token():
     """
@@ -124,19 +139,40 @@ class NoSongsFound(Exception):
     """Raised when an anime has no opening or ending themes."""
     pass
 
+def get_songs(access_token: str, anime_id: int, include_ops=True, include_eds=True):
+    if anime_id in cache:
+        anime = cache[anime_id]
+    else:
+        url = f"https://api.myanimelist.net/v2/anime/{anime_id}?fields=id,title,opening_themes,ending_themes,status"
+        # STATUS CHECK
+        response = requests.get(url, headers={"Authorization": f"Bearer {access_token}"})
+        data = response.json()
+        anime = {
+            "title": data.get('title', 'Unknown'),
+            "opening_themes": [
+                process_name_for_youtube(theme["text"]) for theme in data.get("opening_themes", [])
+            ],
+            "ending_themes": [
+                process_name_for_youtube(theme["text"]) for theme in data.get("ending_themes", [])
+            ]
+        }
+        if data["status"] == "finished_airing":
+            cache[anime_id] = anime
+            save_cache()
+
+    opening_themes = anime.get("opening_themes", []) if include_ops else []
+    ending_themes = anime.get("ending_themes", []) if include_eds else []
+    
+    return opening_themes, ending_themes, anime['title']
+
 
 def gen_song(access_token: str, anime_id: int, include_ops=True, include_eds=True):
-    url = f"https://api.myanimelist.net/v2/anime/{anime_id}?fields=id,title,opening_themes,ending_themes"
-    response = requests.get(url, headers={"Authorization": f"Bearer {access_token}"})
-    data = response.json()
-
-    opening_themes = data.get("opening_themes", []) if include_ops else []
-    ending_themes = data.get("ending_themes", []) if include_eds else []
+    opening_themes, ending_themes, title = get_songs(access_token, anime_id, include_ops, include_eds)
 
     if opening_themes or ending_themes:
         combined = opening_themes + ending_themes
         idx = randint(0, len(combined) - 1)
-        theme = combined[idx]["text"]
+        theme = combined[idx]
 
         # Determine if it's an OP or ED
         if idx < len(opening_themes):
@@ -145,10 +181,10 @@ def gen_song(access_token: str, anime_id: int, include_ops=True, include_eds=Tru
             label = f"ED #{idx - len(opening_themes) + 1}"
 
         return (
-            process_name_for_youtube(theme),
-            f"{data.get('title', 'Unknown')} ({label})",
+            theme,
+            f"{title} ({label})",
             f"https://myanimelist.net/anime/{anime_id}/",
         )
     else:
-        raise NoSongsFound(f"{data['title']} has no OPs or EDs.\nhttps://myanimelist.net/anime/{anime_id}/")
+        raise NoSongsFound(f"{title} has no OPs or EDs.\nhttps://myanimelist.net/anime/{anime_id}/")
 
