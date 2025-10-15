@@ -19,6 +19,7 @@ def _load_config():
             "include_ops": True,
             "include_eds": True,
             "use-yt-dlp": True,
+            "search_page_limit": 5,
         }
         _modified = True
     return _config

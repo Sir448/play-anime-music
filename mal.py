@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from random import randint
 from auth import get_new_token
 from config import get_config
+from urllib.parse import quote_plus
 
 load_dotenv()
 
@@ -15,6 +16,8 @@ MAL_CLIENT_ID = os.getenv("MAL_CLIENT_ID")
 MAL_CLIENT_SECRET = os.getenv("MAL_CLIENT_SECRET")
 
 CACHE_FILE = "mal_cache.json"
+
+SEARCH_PAGE_LIMIT = get_config("search_page_limit", 5)
 
 # Load cache at module import
 if os.path.exists(CACHE_FILE):
@@ -188,3 +191,33 @@ def gen_song(access_token: str, anime_id: int, include_ops=True, include_eds=Tru
     else:
         raise NoSongsFound(f"{title} has no OPs or EDs.\nhttps://myanimelist.net/anime/{anime_id}/")
 
+
+def format_songs(access_token: str, anime_id: int, include_ops=True, include_eds=True):
+    opening_themes, ending_themes, title = get_songs(access_token, anime_id, include_ops, include_eds)
+
+    res = []
+    if opening_themes or ending_themes:
+        combined = opening_themes + ending_themes
+
+        for i, name in enumerate(combined):
+            # Determine if it's an OP or ED
+            if i < len(opening_themes):
+                label = f"OP #{i + 1}"
+            else:
+                label = f"ED #{i - len(opening_themes) + 1}"
+            
+            res.append((name, title, f"https://myanimelist.net/anime/{anime_id}/", label))
+
+        return res
+    else:
+        raise NoSongsFound(f"{title} has no OPs or EDs.\nhttps://myanimelist.net/anime/{anime_id}/")
+
+def search_animes(access_token: str, search_term: str, offset:int=0):
+    if offset:
+        url = f"https://api.myanimelist.net/v2/anime?q={quote_plus(search_term)}&limit={SEARCH_PAGE_LIMIT}&offset={offset}"
+    else:
+        url = f"https://api.myanimelist.net/v2/anime?q={quote_plus(search_term)}&limit={SEARCH_PAGE_LIMIT}"
+    response = requests.get(url, headers={"Authorization": f"Bearer {access_token}"})
+    data = response.json()
+    return [(anime["node"]["id"], anime["node"]["title"]) for anime in data["data"]]
+    

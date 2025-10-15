@@ -49,6 +49,7 @@ This Python script plays songs from your MyAnimeList (MAL) anime list. It automa
 - Skip around song
 - UI
     - Anime Thumbnails
+- Scrape Lists instead of using API for all users
 
 
 

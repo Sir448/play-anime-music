@@ -65,10 +65,10 @@ def format_duration(ms: int) -> str:
     return f"{minutes}:{seconds:02d}"
 
 
-def play_video(name, player):
+def play_video(name, player, instance):
     audio_url, title, video_url = get_audio_url(name)
     # print("Retrieved Audio Url")
-    media = vlc.Media(audio_url)
+    media = instance.media_new(audio_url)
     player.set_media(media)
     player.play()
     while player.get_length() <= 0:
