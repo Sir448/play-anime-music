@@ -143,8 +143,9 @@ class NoSongsFound(Exception):
     pass
 
 def get_songs(access_token: str, anime_id: int, include_ops=True, include_eds=True):
-    if anime_id in cache:
-        anime = cache[anime_id]
+    anime_id_str = str(anime_id)
+    if anime_id_str in cache:
+        anime = cache[anime_id_str]
     else:
         url = f"https://api.myanimelist.net/v2/anime/{anime_id}?fields=id,title,opening_themes,ending_themes,status"
         # STATUS CHECK
@@ -160,7 +161,7 @@ def get_songs(access_token: str, anime_id: int, include_ops=True, include_eds=Tr
             ]
         }
         if data["status"] == "finished_airing":
-            cache[anime_id] = anime
+            cache[anime_id_str] = anime
             save_cache()
 
     opening_themes = anime.get("opening_themes", []) if include_ops else []
